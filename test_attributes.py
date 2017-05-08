@@ -22,8 +22,10 @@ payload = {'emailOrNickname': kijiji_username,
             }
 resp = session.post(url, data = payload)
 
+# This is for testing purpose only. It's replacing the getCategoryMap() function.
 test_categories = {'214': 'apartments, condos > 2 bedroom', '782': 'computer accessories > monitors', '174': 'used cars & trucks'}
 
+# This is the dictionary that would need to be saved in a json file
 postAdAttributes = {}
 """
 postAdAttributes is a dictionary that should look like this:
@@ -50,7 +52,7 @@ postAdAttributes is a dictionary that should look like this:
 }
 """
 
-for category_id, category_name in test_categories.items():  # for key, value in categories.items():
+for category_id, category_name in test_categories.items():  # for k, v in getCategoryMap(session, [], True).items():
     print("Searching", category_name, "...\n")
 
     postAdAttributes[category_id] = {}
@@ -75,21 +77,26 @@ for category_id, category_name in test_categories.items():  # for key, value in 
 
         elif item.name == "input":
 
-            if item['type'] == 'radio':
-                item_name = item.parent.text.replace('\n','')
+            # if it's a text input, there's no options, the user must enter something manually
+            if item['type'] == 'text':
+                postAdAttributes[category_id]['attributes'][item['id']] = {
+                    'name': item_label.text.replace('\n', '').strip(),
+                    'options': None
+                }
 
+            else:
+                item_name = item.parent.text.replace('\n', '')
+
+                # if the attribute is already in the dictionary... ad the option to the options dict
                 if item['id'] in postAdAttributes[category_id]['attributes'].keys():
                     postAdAttributes[category_id]['attributes'][item['id']]['options'][item['value']] = item_name
+
+                # else, create the attribute dict and the options dict
                 else:
                     postAdAttributes[category_id]['attributes'][item['id']] = {
                         'name': item_label.text.replace('\n', '').strip(),
                         'options': {item['value']: item_name}
                     }
-            else:
-                postAdAttributes[category_id]['attributes'][item['id']] = {
-                    'name': item_label.text.replace('\n', '').strip(),
-                    'options': None
-                }
 
 # from pprint import pprint
 # pprint(postAdAttributes)

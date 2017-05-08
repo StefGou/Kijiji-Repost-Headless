@@ -25,6 +25,36 @@ resp = session.post(url, data = payload)
 # This is for testing purpose only. It's replacing the getCategoryMap() function.
 test_categories = {'214': 'apartments, condos > 2 bedroom', '782': 'computer accessories > monitors', '174': 'used cars & trucks'}
 
+def getCategoryMap(session, branchCategories, isInitialRun):
+    leafCategory = {}
+    newBranches = {}
+    if isInitialRun:
+        selectCategoryPage = session.get("https://www.kijiji.ca/p-select-category.html")
+        categorySoup = bs4.BeautifulSoup(selectCategoryPage.text, "html.parser")
+        for categoryNode in categorySoup.select('[id^=CategoryId]'):
+            categoryName = categoryNode.get_text().strip("\n").strip()
+            categoryId = categoryNode['data-cat-id']
+            if (categoryNode['data-cat-leaf']=='false'):
+                newBranches[categoryId] = categoryName
+            else:
+                leafCategory[categoryId] = categoryName
+    elif not isInitialRun and not branchCategories:
+        print(branchCategories)
+        return {}
+    else:
+        for [catId, name] in branchCategories.items():
+            innerSelectUrl = 'https://www.kijiji.ca/p-select-category.html?categoryId='+catId
+            selectCategoryPage = session.get(innerSelectUrl)
+            categorySoup = bs4.BeautifulSoup(selectCategoryPage.text, 'html.parser')
+            for categoryNode in categorySoup.select('[class=category-link]'):
+                categoryName = name + " > " + categoryNode.get_text().strip("\n").strip()
+                categoryId = categoryNode['data-cat-id']
+                if (categoryNode['data-cat-leaf']=='false'):
+                    newBranches[categoryId] = categoryName
+                else:
+                    leafCategory[categoryId] = categoryName
+    return {**leafCategory, **(getCategoryMap(session, newBranches, False))}
+
 # This is the dictionary that would need to be saved in a json file
 postAdAttributes = {}
 """
@@ -52,7 +82,8 @@ postAdAttributes is a dictionary that should look like this:
 }
 """
 
-for category_id, category_name in test_categories.items():  # for k, v in getCategoryMap(session, [], True).items():
+# for category_id, category_name in getCategoryMap(session, [], True).items():
+for category_id, category_name in test_categories.items():  # uncomment line 26 to use this
     print("Searching", category_name, "...\n")
 
     postAdAttributes[category_id] = {}
@@ -101,18 +132,22 @@ for category_id, category_name in test_categories.items():  # for k, v in getCat
 # from pprint import pprint
 # pprint(postAdAttributes)
 
-for category_id, category in postAdAttributes.items():
-    print(category['name'], "("+ category_id +") :")
+# for category_id, category in postAdAttributes.items():
+#     print(category['name'], "("+ category_id +") :")
+#
+#     for attribute_id, attribute in category['attributes'].items():
+#         print("    ", attribute['name'], "(" + attribute_id + ")")
+#
+#         if attribute['options']:
+#             for option_id, option_name in attribute['options'].items():
+#                 print("        ", option_name, "("+option_id+")")
+#         else:
+#             print("         Needs user input")
+#
+#         print()
+#
+#     print("\n==========================\n")
 
-    for attribute_id, attribute in category['attributes'].items():
-        print("    ", attribute['name'], "(" + attribute_id + ")")
-
-        if attribute['options']:
-            for option_id, option_name in attribute['options'].items():
-                print("        ", option_name, "("+option_id+")")
-        else:
-            print("         Needs user input")
-
-        print()
-
-    print("\n==========================\n")
+import json
+with open('attributeMap.json', 'w') as fp:
+    json.dump(postAdAttributes, fp)

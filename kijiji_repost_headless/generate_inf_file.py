@@ -1,8 +1,8 @@
 #TODO: Actual error handling
 
 import json
-
 import requests
+from operator import itemgetter
 from get_ids import get_location_and_area_ids
 from posting_category import *
 
@@ -62,10 +62,7 @@ def pick_category():
         else:
             break
 
-    print("Number of results:", len(possible_categories))
-    print("Make a choice...")
-
-    for i, cat in enumerate(possible_categories):
+    for i, cat in enumerate(sorted(possible_categories, key=itemgetter('category_name'))):
         print("{:>2d} - {}".format(i + 1, cat['category_name']))
 
     # make sure the input is a number and a valid index
@@ -73,7 +70,7 @@ def pick_category():
         response = input("Select a category from the list above (choose number) [To restart, enter 0]: ")
         if response == "0":
             print()  # empty line
-            print("!!!!!!!!!!!!!!!!!!!!!!!")  # return None  # this will restart pick_category
+            return None  # this will restart pick_category
         if response.isdigit():
             if 0 < int(response) <= len(possible_categories):
                 selectedCategory = possible_categories[int(response) - 1]
@@ -92,7 +89,7 @@ def pick_category():
                 'attribute_name'] + " [To restart, enter 0] : ")
             if response == "0":
                 print()  # empty line
-                print("!!!!!!!!!!!!!!!!!!!!!!!")  # return None  # this will restart pick_category
+                return None  # this will restart pick_category
             if response.isdigit():
                 if 0 < int(response) <= len(attribute['attribute_options']):
                     ans[attribute['attribute_id']] = attribute['attribute_options'][int(response) - 1]['option_id']

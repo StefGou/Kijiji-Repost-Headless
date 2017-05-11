@@ -59,19 +59,46 @@ postAdAttributes = []
 postAdAttributes is a list of dictionaries that should look like this:
 
 {
-"category_id": "246",
-"category_name": "furniture > beds, mattresses",
+"category_name": "computer accessories > monitors",
+"category_id": "782",
 "attributes": [
-    {
+  {
+    "attribute_options": [
+      {
+        "option_name": "18\" and under",
+        "option_id": "monitorunder18inch"
+      },
+      {
+        "option_name": "19\"-20\"",
+        "option_id": "monitor19to20inch"
+      },
+      {
+        "option_name": "21\"-24\"",
+        "option_id": "monitor21to24inch"
+      },
+      {
+        "option_name": "25\"+",
+        "option_id": "monitor25inchandabove"
+      }
+    ],
+    "attribute_id": "monitorsize_s",
+    "attribute_name": "Screen Size:"
+  },
+  {
+    "attribute_options": [
+      {
+        "option_name": "Owner",
+        "option_id": "ownr"
+      },
+      {
+        "option_name": "Business",
+        "option_id": "delr"
+      }
+    ],
     "attribute_id": "forsaleby_s",
-    "attribute_name": "For Sale By:",
-    "attribute_options": 
-        {
-        "ownr": "Owner",
-        "delr": "Dealer",
-        }
-    }
-    ]
+    "attribute_name": "For Sale By:"
+  }
+]
 }
 """
 
@@ -99,7 +126,7 @@ for category_id, category_name in test_categories.items():  # uncomment line 26 
 
         if item.name == "select":
             attributes['attribute_name'] = item_label.text.replace('\n','').strip()
-            attributes['attribute_options'] = {option['value'] : option.text for option in item.select('option') if option['value'] != ""}
+            attributes['attribute_options'] = [{"option_id": option['value'], "option_name" : option.text} for option in item.select('option') if option['value'] != ""]
 
         elif item.name == "input":
             attributes['attribute_name'] = item_label.text.replace('\n', '').strip()
@@ -114,12 +141,12 @@ for category_id, category_name in test_categories.items():  # uncomment line 26 
                 # if the attribute is already in the dictionary... ad the option to the options dict
                 att = next((attribute for attribute in category_dict['attributes'] if attribute.get("attribute_id") == item['id']), None)
                 if att:
-                    att['attribute_options'][item['value']] = item_name
+                    att['attribute_options'].append({"option_id": item['value'], "option_name": item_name})
                     continue
 
                 # else, create the attribute dict and the options dict
                 else:
-                    attributes['attribute_options'] = {item['value']: item_name}
+                    attributes['attribute_options'] = [{"option_id": item['value'], "option_name": item_name}]
 
         category_dict['attributes'].append(attributes)
 

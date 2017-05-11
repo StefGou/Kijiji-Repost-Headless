@@ -51,42 +51,51 @@ def restart_function(func):
 #{'category': catId, 'attirbute: 'attrid', 'attribute': 'attrid''}}
 def pick_category():
     ans = {}
+
+    kijiji_json = json.load(open('kijiji_api.json', 'r'))
+
     while True:
         keyword = input("Please provide a category keyword to search for: ")
-        possibleCategories = sqliteSession.query(PostingCategory).filter(PostingCategory.name.like("%"+keyword+"%"))
-        if possibleCategories.count() < 1:
+        possible_categories = [cat for cat in kijiji_json if keyword in cat['category_name']]
+        if len(possible_categories) < 1:
             print("Could not find any categories using the given keyword. Try again.")
         else:
             break
-    for i, cat in enumerate(possibleCategories):
-        print("{:>2d} - {}".format(i+1, cat))
+
+    print("Number of results:", len(possible_categories))
+    print("Make a choice...")
+
+    for i, cat in enumerate(possible_categories):
+        print("{:>2d} - {}".format(i + 1, cat['category_name']))
 
     # make sure the input is a number and a valid index
     while True:
         response = input("Select a category from the list above (choose number) [To restart, enter 0]: ")
         if response == "0":
             print()  # empty line
-            return None  # this will restart pick_category
+            print("!!!!!!!!!!!!!!!!!!!!!!!")  # return None  # this will restart pick_category
         if response.isdigit():
-            if 0 < int(response) <= possibleCategories.count():
-                selectedCategory = possibleCategories[int(response) - 1]
+            if 0 < int(response) <= len(possible_categories):
+                selectedCategory = possible_categories[int(response) - 1]
                 break
         print("Enter a valid number!")
 
-    ans['category'] = selectedCategory.kijijiId
-    for attribute in selectedCategory.attribute:
-        for i, attrValue in enumerate(attribute.acceptableValue):
-            print(i+1, attrValue.value)
+    ans['category'] = selectedCategory['category_id']
+
+    for attribute in selectedCategory['attributes']:
+        for i, attrValue in enumerate(attribute['attribute_options']):
+            print(i + 1, attrValue['option_name'])
 
         # make sure the input is a number and a valid index
         while True:
-            response = input("Choose most relevant category relating to " + attribute.kijijiName + " [To restart, enter 0] : ")
+            response = input("Choose most relevant category relating to " + attribute[
+                'attribute_name'] + " [To restart, enter 0] : ")
             if response == "0":
                 print()  # empty line
-                return None  # this will restart pick_category
+                print("!!!!!!!!!!!!!!!!!!!!!!!")  # return None  # this will restart pick_category
             if response.isdigit():
-                if 0 < int(response) <= len(attribute.acceptableValue):
-                    ans[attribute.kijijiName] = attribute.acceptableValue[int(response) - 1].kijijiValue
+                if 0 < int(response) <= len(attribute['attribute_options']):
+                    ans[attribute['attribute_id']] = attribute['attribute_options'][int(response) - 1]['option_id']
                     break
             print("Enter a valid number!")
 

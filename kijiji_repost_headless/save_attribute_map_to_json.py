@@ -21,7 +21,7 @@ payload = {'emailOrNickname': kijiji_username,
 resp = session.post(url, data = payload)
 
 # This is for testing purpose only. It's replacing the getCategoryMap() function.
-test_categories = {'214': 'apartments, condos > 2 bedroom', '782': 'computer accessories > monitors', '174': 'used cars & trucks'}
+# test_categories = {'214': 'apartments, condos > 2 bedroom', '782': 'computer accessories > monitors', '174': 'used cars & trucks'}
 
 def getCategoryMap(session, branchCategories, isInitialRun):
     leafCategory = {}
@@ -102,8 +102,8 @@ postAdAttributes is a list of dictionaries that should look like this:
 }
 """
 
-# for category_id, category_name in getCategoryMap(session, [], True).items():
-for category_id, category_name in test_categories.items():  # uncomment line 26 to use this
+for category_id, category_name in getCategoryMap(session, [], True).items():
+# for category_id, category_name in test_categories.items():  # uncomment line 26 to use this
     print("Searching", category_name, "...\n")
     category_dict = {}
     category_dict['category_id'] = category_id

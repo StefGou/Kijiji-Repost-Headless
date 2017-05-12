@@ -4,7 +4,7 @@ import json
 import requests
 from operator import itemgetter
 from get_ids import get_location_and_area_ids
-from posting_category import *
+
 
 adType = ['OFFER', 'WANTED']
 priceType = ['FIXED', 'GIVE_AWAY', 'CONTACT', 'SWAP_TRADE']

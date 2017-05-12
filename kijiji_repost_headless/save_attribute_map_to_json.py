@@ -1,6 +1,6 @@
 import bs4, requests
 from kijiji_api import get_token
-from kijiji_settings import kijiji_username, kijiji_password
+from kijiji_settings import KIJIJI_USERNAME, KIJIJI_PASSWORD
 
 session = requests.session()
 
@@ -11,8 +11,8 @@ resp = session.get(url)
 url = 'https://www.kijiji.ca/t-login.html'
 resp = session.get(url)
 
-payload = {'emailOrNickname': kijiji_username,
-            'password': kijiji_password,
+payload = {'emailOrNickname': KIJIJI_USERNAME,
+            'password': KIJIJI_PASSWORD,
             'rememberMe': 'true',
             '_rememberMe': 'on',
             'ca.kijiji.xsrf.token': get_token(resp.text, 'ca.kijiji.xsrf.token'),
